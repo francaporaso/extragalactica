@@ -7,13 +7,12 @@ program main
     integer :: i, n, u
     external E
 
-    Dz = 0.001
-    n = 6000
+    Dz = 0.1
+    n = 10
     u = 10
 
-    open(unit=u, file='cosmo.dat', status='unknown')
-    !write(u, '(A10, 1X, A10, 1X, A10, 1X, A10)')'z', 'chi', 'd_L', 'd_A'
-    
+    open(10, 'test.dat', 'unknown')
+
     do i=1, n
         zi = 0.0 + Dz*(i-1)
         call qromb(E, 0.0, zi, integral)
@@ -22,8 +21,12 @@ program main
         dl = (1.0+zi)*chi
         da = chi/(1.0+zi)
         
-        write(u, '(F10.3, A, F10.3, A, F10.3, A, F10.3)') zi, ',', chi, ',', dl, ',', da
-   
+        write(*, *) zi, chi
+
+        !print *, 'Redshift = ', zi
+        !print *, 'Dist luminosidad = ', dl
+        !print *, 'Dist angular diametral = ', da
+    
     end do
     
     close(u)
