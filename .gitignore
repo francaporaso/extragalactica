@@ -1,9 +1,14 @@
-.out
-.png
-.dat
-.csv
+# ======= compilated and executables
+*.out
+*.o
+*.mod
 .pyc
-__pycache__
-.vscode
+# ======= data
+*.png
+*.dat
+*.csv
+# ======= jupyter notebooks
+*.ipynb
+# ======= folders
 .ipynb_checkpoints/
 
