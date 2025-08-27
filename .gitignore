@@ -1,8 +1,9 @@
 .out
-*pyc
-__pycache__
-.vscode
-.ipynb_checkpoints/
 .png
 .dat
 .csv
+.pyc
+__pycache__
+.vscode
+.ipynb_checkpoints/
+
