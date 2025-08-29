@@ -1,14 +1,17 @@
 # ======= compilated and executables
-*.out
-*.o
-*.mod
-.pyc
-# ======= data
-*.png
-*.dat
-*.csv
+**.out
+**.o
+**.mod
+**.pyc
+# ======= data and figures
+**.png
+**.pdf
+!guia*.pdf
+**.dat
+**.csv
+**.csv.gz
 # ======= jupyter notebooks
-*.ipynb
+**.ipynb
 # ======= folders
-.ipynb_checkpoints/
+**.ipynb_checkpoints/
 
