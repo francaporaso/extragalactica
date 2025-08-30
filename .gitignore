@@ -6,6 +6,7 @@
 # ======= data and figures
 **.png
 **.pdf
+**.eps
 !guia*.pdf
 **.dat
 **.csv
