@@ -2,10 +2,9 @@ program main
     implicit none
     real :: c = 299792.458 !km/s
     real :: H0 = 70.0 !km/s/Mpc
-    real :: zi, Dz, integral, E, chi
+    real :: zi, Dz, integral, chi
     real :: dl, da
     integer :: i, n, u
-    external E
 
     Dz = 0.001
     n = 6000
@@ -22,21 +21,22 @@ program main
         dl = (1.0+zi)*chi
         da = chi/(1.0+zi)
         
-        write(u, '(F10.3, A, F10.3, A, F10.3, A, F10.3)') zi, ',', chi, ',', dl, ',', da
-   
+        write(u, '(F10.3, A, F10.3, A, F10.3, A, F10.3)') zi, ',', chi, ',', dl, ',', da   
     end do
     
     close(u)
 
+contains
+
+    real function E(z)
+        real, intent(in) :: z
+        real :: Om0=0.3, Ode0=0.7, Or0=0.0
+        real :: Ok0 = 0.0
+        
+        E = 1.0/sqrt(Or0*(1.0+z)**4 + Om0*(1.0+z)**3 + Ok0*(1.0+z)**2 + Ode0)
+    end function E
+    
 end program main
-
-function E(z)
-    real, intent(in) :: z
-    real :: Om0=0.3, Ode0=0.7, Or0=0.0
-    real :: Ok0 = 0.0
-
-    E = 1.0/sqrt(Or0*(1.0+z)**4 + Om0*(1.0+z)**3 + Ok0*(1.0+z)**2 + Ode0)
-end function E
 
 include 'qromb.f'
 include 'trapzd.f'
