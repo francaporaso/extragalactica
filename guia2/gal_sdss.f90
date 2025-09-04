@@ -64,7 +64,11 @@ contains
 
     real function absolute_magnitude(mag, z)
         real, intent(in) :: mag, z
-        absolute_magnitude = mag + 5.0 - 5.0*log10(c0*z/H0)    
+        ! debemos corregir mag aparente por extinción
+        ! distancia luminosidad debe ser en pc
+        ! M = m - ext + dist_mod
+
+        absolute_magnitude = mag + 5.0 - 5.0*log10(c0*z/H0)   
     end function absolute_magnitude
 
 end program
