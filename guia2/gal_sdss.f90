@@ -21,6 +21,9 @@ program main
     
     implicit none
     integer, parameter :: ncols=24, nrows=20000
+    real, parameter :: pi = 4.0*atan(1.0)
+    real, parameter :: H0=70.0, c0=299792.458
+    
     integer :: i, iostat, unit=10
     character(len=250) :: header
     type(t_catalogue), dimension(nrows) :: cat
@@ -44,7 +47,8 @@ program main
     end do
     
     print *, cat(1)%pet_r, cat(1)%petR50_r, mu50, M_r
-    print *, Mag_r
+    ! print *, Mag_r
+    
     ! open(unit=unit+1, file='../guia1/cosmo.dat', status='old', action='read')    
     ! do i=1, nrows
     !     read(unit+1,*) z(i), chi(i), dl(i), da(i)
@@ -55,14 +59,11 @@ contains
 
     real function surface_brightness(mag, rad)
         real, intent(in) :: mag, rad
-        real, parameter :: pi = 4.0*atan(1.0)
-        
         surface_brightness = mag + 2.5*log10(pi*rad**2)
     end function surface_brightness
 
     real function absolute_magnitude(mag, z)
         real, intent(in) :: mag, z
-        real, parameter :: H0=70.0, c0=299792.458
         absolute_magnitude = mag + 5.0 - 5.0*log10(c0*z/H0)    
     end function absolute_magnitude
 
