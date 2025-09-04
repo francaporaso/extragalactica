@@ -1,7 +1,9 @@
 program main
     implicit none
-    real :: c = 299792.458 !km/s
-    real :: H0 = 70.0 !km/s/Mpc
+    real, parameter :: c = 299792.458 !km/s
+    real, parameter :: H0 = 70.0 !km/s/Mpc
+    real, parameter :: Om0=0.3, Ode0=0.7, Or0=0.0
+    real, parameter :: Ok0 = 0.0
     real :: zi, Dz, integral, chi
     real :: dl, da
     integer :: i, n, u
@@ -30,9 +32,6 @@ contains
 
     real function E(z)
         real, intent(in) :: z
-        real :: Om0=0.3, Ode0=0.7, Or0=0.0
-        real :: Ok0 = 0.0
-        
         E = 1.0/sqrt(Or0*(1.0+z)**4 + Om0*(1.0+z)**3 + Ok0*(1.0+z)**2 + Ode0)
     end function E
     
