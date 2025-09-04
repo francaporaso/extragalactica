@@ -1,5 +1,5 @@
 import pandas as pd
-import numpy as np
+#import numpy as np
 import matplotlib.pyplot as plt
 import scienceplots
 
@@ -7,7 +7,7 @@ plt.style.use('science')
 
 params = {
     'figure.figsize':(5.6,3.5),
-    'figure.dpi':200,
+    'figure.dpi':100,
     'font.family':'sans-serif',
     'font.size':11,
     'savefig.format':'pdf',
@@ -23,7 +23,7 @@ plt.rcParams.update(params)
 
 def plot_problema2():
     
-    df = pd.read_csv('SDSS_guia2.csv.gz')
+    df = pd.read_csv('SDSS_guia2_fmcaporaso.csv')
     
     # sky footprint
     fig, ax = plt.subplots(1,1)
@@ -48,7 +48,7 @@ def plot_problema2():
     mask = (df.petroMag_r >= 14.5)&(df.petroMag_r <= 17.77)
     ax.scatter(df.petroMag_r[mask], df.redshift[mask], s=4, alpha=0.5, c='C1')
     ax.scatter([],[],c='C1',s=8,label='$14.5 \leq r \leq 17.77$')
-    ax.set_xlabel('$r$ petrosiana')
+    ax.set_xlabel('Magnitud petrosiana banda $r$')
     ax.set_ylabel('Redshift $z$')
     ax.legend(loc='upper right', frameon=True)
     fig.savefig('r_vs_redshift.pdf')
