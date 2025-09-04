@@ -1,47 +1,77 @@
-program main
+module catalogue
     implicit none
+    public t_catalogue
     
+    type :: t_catalogue
+        character(len=20) :: spec_id
+        character(len=20) :: obj_id
+        real :: ra, dec, redshift
+        real :: pet_u, pet_g, pet_r, pet_i, pet_z
+        real :: mod_u, mod_g, mod_r, mod_i, mod_z
+        real :: ext_u, ext_g, ext_r, ext_i, ext_z
+        real :: petR50_r, petR90_r
+        real :: fracDev_r
+        real :: velDisp
+    end type t_catalogue
+    
+end module catalogue
+
+program main
+    use catalogue    
+    
+    implicit none
     integer, parameter :: ncols=24, nrows=20000
     integer :: i, iostat, unit=10
-    !real :: z(nrows), chi(nrows), dl(nrows), da(nrows)
-    character(len=200) :: header, line
-    character(len=20) :: spec_id(nrows), photo_id(nrows)
-    real :: ra(nrows), dec(nrows), redshift(nrows)
-    real :: pet_u(nrows),pet_g(nrows),pet_r(nrows),pet_i(nrows),pet_z(nrows)
-    real :: mod_u(nrows),mod_g(nrows),mod_r(nrows),mod_i(nrows),mod_z(nrows)
-    real :: ext_u(nrows), ext_g(nrows), ext_r(nrows), ext_i(nrows), ext_z(nrows)
-    real :: petroR50_r(nrows), petroR90_r(nrows)
-    real :: fracDeV_r(nrows), velDisp(nrows)
+    character(len=250) :: header
+    type(t_catalogue), dimension(nrows) :: cat
 
-    ! tamaño propio: l = theta * dA 
-    
+    real :: mu50, M_r
+
+    real, dimension(nrows) :: Mag_r
+
     open(unit=unit, file='SDSS_guia2_fmcaporaso.csv', status='old', action='read')    
     ! skip header
     read(unit, '(A)', iostat=iostat) header
-    print *, header
-
     do i=1, nrows
-        read(unit, '(A)', iostat=iostat) line
-        if (iostat/=0) exit
-        read(line, *) spec_id(i), photo_id(i), ra(i), dec(i), redshift(i),& 
-        pet_u(i), pet_g(i), pet_r(i), pet_i(i), pet_z(i), mod_u(i), mod_g(i), mod_r(i), mod_i(i), mod_z(i),&
-        ext_u(i), ext_g(i), ext_r(i), ext_i(i), ext_z(i), petroR50_r(i), petroR90_r(i), fracDeV_r(i), velDisp(i)
+        read(unit,*) cat(i)
     end do
-    close(unit=10)
+    close(unit=unit)
+
+    mu50 = surface_brightness(cat(1)%pet_r, cat(1)%petR50_r)
+    M_r = absolute_magnitude(cat(1)%pet_r, cat(1)%redshift)
+    do i=1, nrows
+        Mag_r(i) = absolute_magnitude(cat(i)%pet_r, cat(i)%redshift)
+    end do
     
-    print *, ra(1), dec(1), redshift(1)
+    print *, cat(1)%pet_r, cat(1)%petR50_r, mu50, M_r
+    print *, Mag_r
+    ! open(unit=unit+1, file='../guia1/cosmo.dat', status='old', action='read')    
+    ! do i=1, nrows
+    !     read(unit+1,*) z(i), chi(i), dl(i), da(i)
+    ! end do
+    ! close(unit=unit+1)
     
-        ! open(unit=10, file='../guia1/cosmo.dat', status='old', action='read')    
-        ! do i=1, nrows
-        !     read(10,*) z(i), chi(i), dl(i), da(i)
-        ! end do
-        ! close(unit=10)
-    
+contains
+
+    real function surface_brightness(mag, rad)
+        real, intent(in) :: mag, rad
+        real, parameter :: pi = 4.0*atan(1.0)
+        
+        surface_brightness = mag + 2.5*log10(pi*rad**2)
+    end function surface_brightness
+
+    real function absolute_magnitude(mag, z)
+        real, intent(in) :: mag, z
+        real, parameter :: H0=70.0, c0=299792.458
+        absolute_magnitude = mag + 5.0 - 5.0*log10(c0*z/H0)    
+    end function absolute_magnitude
+
 end program
 
-! subroutine routine(arg1,  arg2)
-!     type1, intent(in) :: arg1
-!     type2, intent(out) ::  arg2
-
-    
-! end subroutine routine
+! ============= Definiciones
+! tamaño propio: r = petroR50_r * dA 
+! indice de concentracion: C = r90/r50
+! distancia propia: d = c*z/H0 (z<<1)
+! mag absoluta: M = m + 5 - 5*log10(d)
+! AB syst?
+! brillo superficial: mu50_r = m + 2.5*log10(pi**2*petroR50_r)
