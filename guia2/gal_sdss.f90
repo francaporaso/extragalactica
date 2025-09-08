@@ -1,7 +1,6 @@
-module catalogue
+program main
     implicit none
-    public t_catalogue
-    
+
     type :: t_catalogue
         character(len=20) :: spec_id
         character(len=20) :: obj_id
@@ -14,12 +13,6 @@ module catalogue
         real :: velDisp
     end type t_catalogue
     
-end module catalogue
-
-program main
-    use catalogue    
-    
-    implicit none
     integer, parameter :: ncols=24, nrows=20000
     real, parameter :: pi = 4.0*atan(1.0)
     real, parameter :: H0=70.0, c0=299792.458
