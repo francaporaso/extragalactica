@@ -100,33 +100,29 @@ program main
 
     close(unit=usdss)
     close(unit=utable)
+
 contains
 
-real function luminosity_distance(z_obj)
-    use cosmotab
-    implicit none
-    real, intent(in) :: z_obj
-    integer :: j 
+    real function luminosity_distance(z_obj)
+        use cosmotab
+        implicit none
+        real, intent(in) :: z_obj
+        integer :: j 
 
-    call locate(z, n, z_obj, j)
-    luminosity_distance = (1.0+z_obj)*(chi(j) + (z_obj - z(j))*(chi(j+1)-chi(j))/(z(j+1)-z(j)))
+        call locate(z, n, z_obj, j)
+        luminosity_distance = (1.0+z_obj)*(chi(j) + (z_obj - z(j))*(chi(j+1)-chi(j))/(z(j+1)-z(j)))
+    end function
 
-end function
+    real function angular_diam_distance(z_obj)
+        use cosmotab
+        implicit none
+        real, intent(in) :: z_obj
+        integer :: j
 
-real function angular_diam_distance(z_obj)
-    use cosmotab
-    implicit none
-    real, intent(in) :: z_obj
-    integer :: j
-
-    call locate(z, n, z_obj, j)
-    angular_diam_distance = (chi(j) + (z_obj - z(j))*(chi(j+1)-chi(j))/(z(j+1)-z(j)))/(1.0+z_obj)
-end function
+        call locate(z, n, z_obj, j)
+        angular_diam_distance = (chi(j) + (z_obj - z(j))*(chi(j+1)-chi(j))/(z(j+1)-z(j)))/(1.0+z_obj)
+    end function
 
 end program main
 
-
 include 'locate.f'
-
-! Mabs = mapa - ext + dist_mod + CorrAB
-! dist_mod := modulo de distancia
