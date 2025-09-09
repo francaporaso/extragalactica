@@ -21,10 +21,12 @@ params = {
 }
 plt.rcParams.update(params)
 
+folder = 'figures/'
+
 def plot_problema2():
-    
+
     df = pd.read_csv('SDSS_guia2_fmcaporaso.csv')
-    
+
     # sky footprint
     fig, ax = plt.subplots(1,1)
     ax.scatter(df.ra, df.dec, s=3, alpha=0.8)
@@ -32,7 +34,7 @@ def plot_problema2():
     ax.set_ylabel('Declinación [deg]')
     fig.savefig('sky_footprint.pdf')
     #plt.show()
-    
+
     # redshift distribution
     fig, ax = plt.subplots(1,1)
     ax.hist(df.redshift, bins=25, histtype='step')
@@ -53,6 +55,10 @@ def plot_problema2():
     ax.legend(loc='upper right', frameon=True)
     fig.savefig('r_vs_redshift.pdf')
     #plt.show()
+
+def plot_problema4():
+
+    df = pd.read_csv('gals.dat', separator='')
 
 if __name__=='__main__':
     plot_problema2()
