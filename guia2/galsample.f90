@@ -68,33 +68,33 @@ program main
         if (.not.((pet_r>=14.5).and.(pet_r<=17.7).and.(petR50_r>1.5))) cycle
         if (mod_u < -100) cycle ! hay 1 gx con mod_u = -9999, excluido
  
-        pet_u = pet_u - ext_u
-        pet_g = pet_g - ext_g
-        pet_r = pet_r - ext_r
-        pet_i = pet_i - ext_i
-        pet_z = pet_z - ext_z
+        pet_u = pet_u - ext_u + corr_ab_u
+        pet_g = pet_g - ext_g + corr_ab_g
+        pet_r = pet_r - ext_r + corr_ab_r
+        pet_i = pet_i - ext_i + corr_ab_i
+        pet_z = pet_z - ext_z + corr_ab_z
 
-        mod_u = mod_u - ext_u
-        mod_g = mod_g - ext_g
-        mod_r = mod_r - ext_r
-        mod_i = mod_i - ext_i
-        mod_z = mod_z - ext_z
+        mod_u = mod_u - ext_u + corr_ab_u
+        mod_g = mod_g - ext_g + corr_ab_g
+        mod_r = mod_r - ext_r + corr_ab_r
+        mod_i = mod_i - ext_i + corr_ab_i
+        mod_z = mod_z - ext_z + corr_ab_z
 
         ! === Magnitudes absolutas
         dl = luminosity_distance(redshift)
         dist_mod = -(5*log10(dl) + 25)
 
-        M_abs_mod_u = mod_u + dist_mod + corr_ab_u
-        M_abs_mod_g = mod_g + dist_mod + corr_ab_g
-        M_abs_mod_r = mod_r + dist_mod + corr_ab_r
-        M_abs_mod_i = mod_i + dist_mod + corr_ab_i
-        M_abs_mod_z = mod_z + dist_mod + corr_ab_z
+        M_abs_mod_u = mod_u + dist_mod
+        M_abs_mod_g = mod_g + dist_mod
+        M_abs_mod_r = mod_r + dist_mod
+        M_abs_mod_i = mod_i + dist_mod
+        M_abs_mod_z = mod_z + dist_mod
 
-        M_abs_pet_u = pet_u + dist_mod + corr_ab_u
-        M_abs_pet_g = pet_g + dist_mod + corr_ab_g
-        M_abs_pet_r = pet_r + dist_mod + corr_ab_r
-        M_abs_pet_i = pet_i + dist_mod + corr_ab_i
-        M_abs_pet_z = pet_z + dist_mod + corr_ab_z
+        M_abs_pet_u = pet_u + dist_mod
+        M_abs_pet_g = pet_g + dist_mod
+        M_abs_pet_r = pet_r + dist_mod
+        M_abs_pet_i = pet_i + dist_mod
+        M_abs_pet_z = pet_z + dist_mod
 
         ! === Colores
         ! Warning: debería aplicar correciones ab?
