@@ -6,12 +6,12 @@ end module cosmotab
 
 module galsample
     implicit none
-    real :: M_abs_pet_u, M_abs_pet_g, M_abs_pet_r, M_abs_pet_i, M_abs_pet_z
-    real :: M_abs_mod_u, M_abs_mod_g, M_abs_mod_r, M_abs_mod_i, M_abs_mod_z
+    real, dimension(5) :: M_abs_pet
+    real, dimension(5) :: M_abs_mod
     real :: u_r, g_r
     real :: r50, r90
-    real :: conc
-    real :: mu50
+    real :: c9050 ! concentration index
+    real :: mu50 ! surface brigtness
 end module galsample
 
 module catalogue
@@ -19,9 +19,9 @@ module catalogue
     character(len=20) :: spec_id
     character(len=20) :: obj_id
     real :: ra, dec, redshift
-    real :: pet_u, pet_g, pet_r, pet_i, pet_z
-    real :: mod_u, mod_g, mod_r, mod_i, mod_z
-    real :: ext_u, ext_g, ext_r, ext_i, ext_z
+    real, dimension(5) :: petromag
+    real, dimension(5) :: modelmag
+    real, dimension(5) :: extintion
     real :: petR50_r, petR90_r
     real :: fracDev_r
     real :: velDisp 
@@ -34,15 +34,15 @@ program main
 
     implicit none
     
-    integer :: i, nskip=0
+    integer :: i,k
     integer, parameter :: ucosmo = 10, usdss=11, utable=12
     integer, parameter :: nrows=20000
     real, parameter :: pi = 4.0*atan(1.0)
     real, parameter :: arcsec2rad = pi/(180.0*3600.0)
-    real, parameter :: corr_ab_u=-0.036, corr_ab_g=0.012, corr_ab_r=0.010, corr_ab_i=0.028, corr_ab_z=0.040
+    real, dimension(5), parameter :: corr_ab = (/-0.036,0.012,0.010,0.028,0.040/)
 
     real :: luminosity_distance, angular_diam_distance
-    real :: dl, dA, dist_mod
+    real :: dL, dA, dist_mod, r
 
     ! ============ open cosmo.dat table    
     open(unit=ucosmo, file='../guia1/cosmo.dat', status='old', action='read')
@@ -58,63 +58,49 @@ program main
     ! ============ Nueva tabla
     open(unit=utable, file='gals.dat', status='unknown')
     write(utable, '(21(A12, 1X))') 'ra','dec','z','M_mod_u','M_mod_g','M_mod_r','M_mod_i','M_mod_z','M_&
-        &pet_u','M_pet_g','M_pet_r','M_pet_i','M_pet_z','u_r','g_r','r50','r90','conc','fracDeV_r','mu50','velDisp'
+        &pet_u','M_pet_g','M_pet_r','M_pet_i','M_pet_z','u_r','g_r','r50','r90','c9050','fracDeV_r','mu50','velDisp'
 
     do i=1, nrows
-        read(usdss,*)spec_id,obj_id,ra,dec,redshift,pet_u,pet_g,pet_r,pet_i,pet_z,mod_u,mod_g,mod_r,mod_i,mod_z,ext_u,ext_g,ext_&
-        &r,ext_i,ext_z,petR50_r,petR90_r,fracDev_r,velDisp
+        read(usdss,*) spec_id,obj_id,ra,dec,redshift,(petromag(k),k=1,5),(model&
+        &mag(k),k=1,5),(extintion(k),k=1,5),petR50_r,petR90_r,fracDev_r,velDisp
+
+        r = petromag(3) - extintion(3)
 
         ! === gold sample
-        if (.not.((pet_r>=14.5).and.(pet_r<=17.7).and.(petR50_r>1.5))) cycle
-        if (mod_u < -100) cycle ! hay 1 gx con mod_u = -9999, excluido
+        if ((r<14.5).or.(r>17.77).or.(petR50_r<1.5)) cycle
+        if (modelmag(1) < -100) cycle ! hay 1 gx con mod_u = -9999, excluido
  
-        pet_u = pet_u - ext_u + corr_ab_u
-        pet_g = pet_g - ext_g + corr_ab_g
-        pet_r = pet_r - ext_r + corr_ab_r
-        pet_i = pet_i - ext_i + corr_ab_i
-        pet_z = pet_z - ext_z + corr_ab_z
-
-        mod_u = mod_u - ext_u + corr_ab_u
-        mod_g = mod_g - ext_g + corr_ab_g
-        mod_r = mod_r - ext_r + corr_ab_r
-        mod_i = mod_i - ext_i + corr_ab_i
-        mod_z = mod_z - ext_z + corr_ab_z
-
-        ! === Magnitudes absolutas
-        dl = luminosity_distance(redshift)
+        dL = luminosity_distance(redshift) ! Mpc
+        dA = angular_diam_distance(redshift)*1000.0 ! kpc
         dist_mod = -(5*log10(dl) + 25)
+        
+        do k=1, 5
+            petromag(k) = petromag(k)-extintion(k)
+            modelmag(k) = modelmag(k)-extintion(k)
+        end do
 
-        M_abs_mod_u = mod_u + dist_mod
-        M_abs_mod_g = mod_g + dist_mod
-        M_abs_mod_r = mod_r + dist_mod
-        M_abs_mod_i = mod_i + dist_mod
-        M_abs_mod_z = mod_z + dist_mod
-
-        M_abs_pet_u = pet_u + dist_mod
-        M_abs_pet_g = pet_g + dist_mod
-        M_abs_pet_r = pet_r + dist_mod
-        M_abs_pet_i = pet_i + dist_mod
-        M_abs_pet_z = pet_z + dist_mod
-
+        do k=1,5
+            M_abs_pet(k) = petromag(k)+dist_mod+corr_ab(k)
+            M_abs_mod(k) = modelmag(k)+dist_mod+corr_ab(k)
+        end do
+        
         ! === Colores
-        ! Warning: debería aplicar correciones ab?
-        u_r = mod_u - mod_r
-        g_r = mod_g - mod_r
+        u_r = modelmag(1) - modelmag(3)
+        g_r = modelmag(2) - modelmag(3)
 
         ! === Radios petro en kpc
-        dA = angular_diam_distance(redshift)*1000.0 ! kpc
         r50 = petR50_r*arcsec2rad*dA
         r90 = petR90_r*arcsec2rad*dA
 
         ! === Concentración
-        conc = petR90_r / petR50_r
+        c9050 = petR90_r / petR50_r
 
         ! === Brillo superficial
-        mu50 = mod_r + 2.5*log10(pi*petR50_r**2)
+        mu50 = petromag(3) + 2.5*log10(2*pi*petR50_r**2) !
 
         ! === save to file
-        write(utable, '(21(F12.7, 1X))') ra, dec, redshift, M_abs_mod_u, M_abs_mod_g, M_abs_mod_r, M_abs_mod_i, M_abs_mod_z, M_abs_&
-            &pet_u, M_abs_pet_g, M_abs_pet_r, M_abs_pet_i, M_abs_pet_z, u_r, g_r, r50, r90, conc, fracDeV_r, mu50, velDisp
+        write(utable, '(21(F12.7, 1X))') ra, dec, redshift, (M_abs_mod(k),k=1,5), (M_abs_&
+        &pet(k),k=1,5), u_r, g_r, r50, r90, c9050, fracDeV_r, mu50, velDisp
 
     end do
 
