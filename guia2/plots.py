@@ -10,19 +10,24 @@ _params = {
     'figure.figsize':(5.6,3.5),
     'figure.dpi':100,
     'font.family':'sans-serif',
-    'font.size':11,
-    'savefig.format':'pdf',
+    'font.size':12,
+    'savefig.format':'png',
     'savefig.transparent':True,
     'xtick.direction':'in',
     'xtick.top':True,
     'ytick.direction':'in',
     'ytick.right':True,
     'errorbar.capsize':3,
+    'legend.loc':'upper right',
     'legend.frameon':True,
+    'legend.fontsize':9,
 }
 plt.rcParams.update(_params)
 
 _folder = 'figures/'
+
+G = pd.read_fwf('gals.dat')
+G.query('u_r < 4.0 and g_r < 1.3 and c9050 > 1.5 and c9050 < 4', inplace=True)
 
 def plot_problema2():
 
@@ -108,8 +113,6 @@ def plot_problema4():
     ## ajuste de doble gausiana -> probar con equal bin y equal number (quartiles)
 
 def plot_bimodalcolors(save=False):
-    G = pd.read_fwf('gals.dat')
-    G.query('u_r < 4.0 and g_r < 1.3 and c9050 > 1.5 and c9050 < 4', inplace=True)
 
     g_r = fit_bimodal(G['g_r'], p0=[0.6, 0.3, 0.1, 0.4, 0.8, 0.1])
     u_r = fit_bimodal(G['u_r'], p0=[0.5, 1.5, 0.3, 0.5, 2.5, 0.2])
@@ -141,16 +144,24 @@ def plot_bimodalcolors(save=False):
 
     if save:
         np.savetxt(
-            _folder+'colors_fit.dat', 
-            np.vstack([
-                u_r['popt'], 
-                np.sqrt(np.diag(u_r['cov'])),
-                g_r['popt'], 
-                np.sqrt(np.diag(g_r['cov'])),
-            ]).T,
-            fmt='%8.6G', 
+            _folder+'colors_fit.dat',
+            np.vstack([u_r['popt'], np.sqrt(np.diag(u_r['cov'])),
+                       g_r['popt'], np.sqrt(np.diag(g_r['cov']))]).T,
             header='u-r_popt u-r_perr g-r_popt g-r_perr',
-            comments='#w1 mu1 sigma1 w2 mu2 sigma2 \n')
+            comments='#w1 mu1 sigma1 w2 mu2 sigma2 \n',
+            fmt='%8.6G', 
+        )
+
+def plot_conc_fracdev():
+    fig, (ax1,ax2) = plt.subplots(1,2, figsize=(9,4))
+    ax1.hist(G['c9050'], bins=50, density=True, histtype='step', hatch='///', color='dimgray')
+    ax2.hist(G['fracDeV_r'], bins=50, density=True, histtype='step', hatch='///', color='dimgray')
+
+    ax1.set_xlabel('Índice de concentración $C$')
+    ax1.set_ylabel('Densidad de galaxias')
+    ax2.set_xlabel('$\\texttt{fracDeV_r}$')
 
 if __name__=='__main__':
-    pass
+    plot_conc_fracdev()
+    plt.show()
+    print('no está listo...')

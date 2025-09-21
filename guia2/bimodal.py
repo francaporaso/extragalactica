@@ -2,26 +2,6 @@ from scipy.optimize import curve_fit
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-# import scienceplots
-
-# plt.style.use('science')
-# _params = {
-#     'figure.figsize':(5.6,3.5),
-#     'figure.dpi':100,
-#     'font.family':'sans-serif',
-#     'font.size':12,
-#     'savefig.format':'png',
-#     'savefig.transparent':True,
-#     'xtick.direction':'in',
-#     'xtick.top':True,
-#     'ytick.direction':'in',
-#     'ytick.right':True,
-#     'errorbar.capsize':3,
-#     'legend.loc':'upper right',
-#     'legend.frameon':True,
-#     'legend.fontsize':9,
-# }
-# plt.rcParams.update(_params)
 
 _folder = 'figures/'
 
