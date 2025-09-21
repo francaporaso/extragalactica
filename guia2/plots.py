@@ -1,5 +1,6 @@
 import pandas as pd
 import numpy as np
+from scipy.optimize import curve_fit
 import matplotlib.pyplot as plt
 import scienceplots
 
@@ -56,8 +57,6 @@ def plot_problema2():
     fig.savefig('r_vs_redshift.pdf')
     #plt.show()
 
-def bimodal(x, p, mu1, sigma1, mu2, sigma2):
-    return (2*np.pi)**(-0.5)*( (p/sigma1)*np.exp(-((x-mu1)/sigma1))**2 + ((1.0-p)/sigma2)*np.exp(-((x-mu2)/sigma2))**2 )
 
 def plot_problema4():
 
@@ -103,12 +102,15 @@ def plot_problema4():
     # plt.show()
 
     # ========== color magnitud
-    fig, ax = plt.subplots()
-    ax.scatter(df.M_pet_r, df.u_r, s=2, alpha=0.5)
-    plt.show()
+    #fig, ax = plt.subplots()
+    #ax.scatter(df.M_pet_r, df.u_r, s=2, alpha=0.5)
+    #plt.show()
 
     ## ajuste de doble gausiana -> probar con equal bin y equal number (quartiles)
 
 if __name__=='__main__':
     #plot_problema2()
-    plot_problema4()
+    #plot_problema4()
+    df = pd.read_fwf('gals.dat')
+
+    print(fit_color(df.u_r))
