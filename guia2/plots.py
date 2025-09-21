@@ -1,12 +1,12 @@
 import pandas as pd
 import numpy as np
 from scipy.optimize import curve_fit
+from bimodal import *
 import matplotlib.pyplot as plt
 import scienceplots
 
 plt.style.use('science')
-
-params = {
+_params = {
     'figure.figsize':(5.6,3.5),
     'figure.dpi':100,
     'font.family':'sans-serif',
@@ -20,9 +20,9 @@ params = {
     'errorbar.capsize':3,
     'legend.frameon':True,
 }
-plt.rcParams.update(params)
+plt.rcParams.update(_params)
 
-folder = 'figures/'
+_folder = 'figures/'
 
 def plot_problema2():
 
@@ -56,7 +56,6 @@ def plot_problema2():
     ax.legend(loc='upper right', frameon=True)
     fig.savefig('r_vs_redshift.pdf')
     #plt.show()
-
 
 def plot_problema4():
 
@@ -108,9 +107,50 @@ def plot_problema4():
 
     ## ajuste de doble gausiana -> probar con equal bin y equal number (quartiles)
 
-if __name__=='__main__':
-    #plot_problema2()
-    #plot_problema4()
-    df = pd.read_fwf('gals.dat')
+def plot_bimodalcolors(save=False):
+    G = pd.read_fwf('gals.dat')
+    G.query('u_r < 4.0 and g_r < 1.3 and c9050 > 1.5 and c9050 < 4', inplace=True)
 
-    print(fit_color(df.u_r))
+    g_r = fit_bimodal(G['g_r'], p0=[0.6, 0.3, 0.1, 0.4, 0.8, 0.1])
+    u_r = fit_bimodal(G['u_r'], p0=[0.5, 1.5, 0.3, 0.5, 2.5, 0.2])
+
+    fig, (ax1,ax2) = plt.subplots(1,2, figsize=(9,4))
+
+    ax1.stairs(edges=g_r['xedges'], values=g_r['y'],
+               label='SDSS', hatch='///', color='dimgray')
+    ax1.plot(g_r['x'], g_r['yfit'],
+             label='Ajuste bimodal', c='k', lw=1.8, alpha=0.8)
+    ax1.plot(g_r['x'], g_r['popt'][0]*normal(g_r['x'], *g_r['popt'][1:3]),
+             label='Nube azul', c='b', ls='--')
+    ax1.plot(g_r['x'], g_r['popt'][3]*normal(g_r['x'], *g_r['popt'][4:]),
+             label='Sec. roja', c='r', ls='--')
+    ax1.set_xlabel('$g-r$')
+    ax1.set_ylabel('Densidad de galaxias')
+
+    ax2.stairs(edges=u_r['xedges'], values=u_r['y'],
+               label='SDSS', hatch='///', color='dimgray')
+    ax2.plot(u_r['x'], u_r['yfit'],
+             label='Ajuste bimodal', c='k', lw=1.8, alpha=0.8)
+    ax2.plot(u_r['x'], u_r['popt'][0]*normal(u_r['x'], *u_r['popt'][1:3]),
+             label='Nube azul', c='b', ls='--')
+    ax2.plot(u_r['x'], u_r['popt'][3]*normal(u_r['x'], *u_r['popt'][4:]),
+             label='Sec. roja', c='r', ls='--')
+    ax2.set_xlabel('$u-r$')
+    ax2.legend(ncols=2)
+    fig.savefig(_folder+'colors_fit.png')
+
+    if save:
+        np.savetxt(
+            _folder+'colors_fit.dat', 
+            np.vstack([
+                u_r['popt'], 
+                np.sqrt(np.diag(u_r['cov'])),
+                g_r['popt'], 
+                np.sqrt(np.diag(g_r['cov'])),
+            ]).T,
+            fmt='%8.6G', 
+            header='u-r_popt u-r_perr g-r_popt g-r_perr',
+            comments='#w1 mu1 sigma1 w2 mu2 sigma2 \n')
+
+if __name__=='__main__':
+    pass
