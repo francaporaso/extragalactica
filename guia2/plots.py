@@ -7,8 +7,8 @@ import scienceplots
 
 plt.style.use('science')
 _params = {
-    'figure.figsize':(5.6,3.5),
-    'figure.dpi':100,
+    'figure.figsize':(5,3),
+    'figure.dpi':96,
     'font.family':'sans-serif',
     'font.size':12,
     'savefig.format':'png',
@@ -27,7 +27,7 @@ plt.rcParams.update(_params)
 _folder = 'figures/'
 
 G = pd.read_fwf('gals.dat')
-G.query('u_r < 4.0 and g_r < 1.3 and c9050 > 1.5 and c9050 < 4', inplace=True)
+G.query('u_r < 4.0 and u_r > 0 and g_r < 1.3 and c9050 > 1.5 and c9050 < 4', inplace=True)
 
 def plot_problema2():
 
@@ -153,15 +153,63 @@ def plot_bimodalcolors(save=False):
         )
 
 def plot_conc_fracdev():
-    fig, (ax1,ax2) = plt.subplots(1,2, figsize=(9,4))
-    ax1.hist(G['c9050'], bins=50, density=True, histtype='step', hatch='///', color='dimgray')
-    ax2.hist(G['fracDeV_r'], bins=50, density=True, histtype='step', hatch='///', color='dimgray')
+    fig, ax = plt.subplots(1,3, figsize=(12,3.8))
+    ax[0].hist(G['c9050'], bins=50, density=True, histtype='step', hatch='///', color='dimgray')
+    ax[1].hist(G['fracDeV_r'], bins=50, density=True, histtype='step', hatch='///', color='dimgray')
+    ax[2].scatter(G['c9050'], G['fracDeV_r'], s=1, alpha=0.4)
 
-    ax1.set_xlabel('Índice de concentración $C$')
-    ax1.set_ylabel('Densidad de galaxias')
-    ax2.set_xlabel('$\\texttt{fracDeV_r}$')
+    ax[0].set_xlabel('Índice de concentración $C$')
+    ax[0].set_ylabel('Densidad de galaxias')
+    ax[1].set_xlabel('$\\texttt{fracDeV_r}$')
+
+    ax[2].set_xlabel('$C$')
+    ax[2].set_ylabel('$\\texttt{fracDeV_r}$')
+
+
+def plot_conc_u_r():
+    fig, ax = plt.subplots(figsize=(5,5))
+    ax.scatter(G['c9050'], G['u_r'], s=1, alpha=0.2)
+    ax.axvline(2.5, ls=':', lw=1.5, c='dimgray') # 
+    ax.axhline(2.0, ls=':', lw=1.5, c='dimgray') # color
+    
+    ax.set_xlabel('Índice de concentración $C$')
+    ax.set_ylabel('$u-r$')
+    
+def plot_color_mag():
+    mask = G['c9050'] > 2.5
+    fig, ax = plt.subplots(figsize=(5,5))
+    
+    ## == color bar of concentration
+    # cmap = ax.scatter(G['M_pet_r'], G['u_r'], s=1, c=G['c9050'], cmap='coolwarm', alpha=1, facecolor=None)
+    # fig.colorbar(cmap, label='$C$')
+
+    ## == division by c=2.5
+    ax.scatter(G['M_pet_r'][mask], G['u_r'][mask], s=12, marker='o', c='C3', alpha=1, facecolor='white')
+    ax.scatter(G['M_pet_r'][~mask], G['u_r'][~mask], s=12, marker='^', c='C0', alpha=0.5, facecolor='white')
+
+    ## == hexbin
+    #ax.hexbin(G['M_pet_r'], G['u_r'], gridsize=50, bins='log', cmap='binary')
+
+    ax.axhline(2.0, ls='--', lw=1.5, c='k', alpha=0.8)
+
+    #ax.invert_xaxis()
+    ax.set_xlabel('$M_r$ petrosiana')
+    ax.set_ylabel('$u-r$')
+    return fig, ax
+
+def fit_colormag():
+    q = np.quantile(G['M_pet_r'], [0.25,0.50,0.75])
+    print(q)
+    fig, ax = plot_color_mag()
+    
+    for qi in q:
+        ax.axvline(qi, ls='--', c='k')
+
+    
 
 if __name__=='__main__':
-    plot_conc_fracdev()
+
+    #plot_color_mag()
+    fit_colormag()
     plt.show()
     print('no está listo...')
