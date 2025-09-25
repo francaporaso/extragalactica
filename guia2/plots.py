@@ -1,8 +1,8 @@
 import pandas as pd
 import numpy as np
-from scipy.optimize import curve_fit
 from bimodal import *
 import matplotlib.pyplot as plt
+import matplotlib.colors as colors
 import scienceplots
 
 plt.style.use('science')
@@ -112,7 +112,7 @@ def plot_problema4():
 
     ## ajuste de doble gausiana -> probar con equal bin y equal number (quartiles)
 
-def plot_bimodalcolors(save=False):
+def plot_bimodalcolors(savename=None):
 
     g_r = fit_bimodal(G['g_r'], p0=[0.6, 0.3, 0.1, 0.4, 0.8, 0.1])
     u_r = fit_bimodal(G['u_r'], p0=[0.5, 1.5, 0.3, 0.5, 2.5, 0.2])
@@ -142,9 +142,9 @@ def plot_bimodalcolors(save=False):
     ax2.legend(ncols=2)
     fig.savefig(_folder+'colors_fit.png')
 
-    if save:
+    if savename is not None:
         np.savetxt(
-            _folder+'colors_fit.dat',
+            _folder+savename+'colors_fit.dat',
             np.vstack([u_r['popt'], np.sqrt(np.diag(u_r['cov'])),
                        g_r['popt'], np.sqrt(np.diag(g_r['cov']))]).T,
             header='u-r_popt u-r_perr g-r_popt g-r_perr',
@@ -176,21 +176,30 @@ def plot_conc_u_r():
     ax.set_ylabel('$u-r$')
     
 def plot_color_mag():
+    color_min    = "b"
+    color_center = "lightgray"
+    color_max    = "r"
+    cmap = colors.LinearSegmentedColormap.from_list(
+        "cmap_name",
+        [color_min, color_center, color_max]
+    )
+
     mask = G['c9050'] > 2.5
     fig, ax = plt.subplots(figsize=(5,5))
     
     ## == color bar of concentration
-    # cmap = ax.scatter(G['M_pet_r'], G['u_r'], s=1, c=G['c9050'], cmap='coolwarm', alpha=1, facecolor=None)
-    # fig.colorbar(cmap, label='$C$')
+    cmap = ax.scatter(G['M_pet_r'], G['u_r'], s=5, c=G['c9050'], cmap=cmap, norm=colors.CenteredNorm(vcenter=2.5), alpha=1, facecolor=None)
+    fig.colorbar(cmap, label='$C$')
 
     ## == division by c=2.5
-    ax.scatter(G['M_pet_r'][mask], G['u_r'][mask], s=12, marker='o', c='C3', alpha=1, facecolor='white')
-    ax.scatter(G['M_pet_r'][~mask], G['u_r'][~mask], s=12, marker='^', c='C0', alpha=0.5, facecolor='white')
+    # ax.scatter(G['M_pet_r'][~mask], G['u_r'][~mask], s=12, marker='^', edgecolor='C0', facecolor='none', alpha=0.5)
+    # ax.scatter(G['M_pet_r'][mask], G['u_r'][mask], s=12, marker='o', edgecolor='C3', facecolor='none', alpha=0.5)
+    #ax.scatter(G['M_pet_r'], G['u_r'], s=12, marker='o' if G['c9050']<2.5 else 's', edgecolor='C3' if G['c9050']<2.5 else 'C0', facecolor='none', alpha=0.5)
 
     ## == hexbin
     #ax.hexbin(G['M_pet_r'], G['u_r'], gridsize=50, bins='log', cmap='binary')
 
-    ax.axhline(2.0, ls='--', lw=1.5, c='k', alpha=0.8)
+    ax.axhline(2.0, ls='--', c='k', alpha=0.8)
 
     #ax.invert_xaxis()
     ax.set_xlabel('$M_r$ petrosiana')
@@ -202,14 +211,76 @@ def fit_colormag():
     print(q)
     fig, ax = plot_color_mag()
     
-    for qi in q:
-        ax.axvline(qi, ls='--', c='k')
+    for i in range(3):
+        ax.axvline(q[i], ls='--', c='k', alpha=0.8)
 
+    mask = [
+        G['M_pet_r']<q[0], 
+        (G['M_pet_r']>q[0])&(G['M_pet_r']<q[1]), 
+        (G['M_pet_r']>q[1])&(G['M_pet_r']<q[2]), 
+        G['M_pet_r']>q[2]
+    ]
+
+    quantiles = [f'$M_r<{q[0]:2.2f}$',f'${q[0]:2.2f}<M_r<{q[1]:2.2f}$',f'${q[1]:2.2f}<M_r<{q[2]:2.2f}$',f'$M_r>{q[2]:2.2f}$']
+
+    fits = [fit_bimodal(G['u_r'][mask[i]], p0=[0.5, 1.5, 0.3, 0.5, 2.5, 0.2], nbins=np.linspace(0.65,3.25,50)) for i in range(4)]
+
+    fig2, axes = plt.subplots(2,2, sharex=True, sharey=True, figsize=(5,5))
+    fig2.subplots_adjust(wspace=0.1, hspace=0.2)
+    axesflat = axes.flatten()
+    for i in range(4):
+        axesflat[i].axvline(2.0,ls='--',c='k',alpha=0.8)
+                
+        axesflat[i].stairs(edges=fits[i]['xedges'], values=fits[i]['y'],
+                hatch='///', color='dimgray')
+        axesflat[i].plot(fits[i]['x'], fits[i]['yfit'],
+                c='k', lw=1.8, alpha=0.8)
+        axesflat[i].plot(fits[i]['x'], fits[i]['popt'][0]*normal(fits[i]['x'], *fits[i]['popt'][1:3]),
+                c='b', ls='--')
+        axesflat[i].plot(fits[i]['x'], fits[i]['popt'][3]*normal(fits[i]['x'], *fits[i]['popt'][4:]),
+                c='r', ls='--')
+        axesflat[i].set_title(quantiles[i], fontsize=9)
+
+    axesflat[1].plot([],[], c='r', label='Sec. roja')
+    axesflat[1].plot([],[], c='b', label='Nube azul')
+    axesflat[1].plot([],[], c='k', label='Ajuste bimodal')
+    #axesflat[1].stairs([],[], c='dimgray', hatch='///', label='SDSS')
+    axesflat[1].legend()
+
+    fig2.text(0.5, 0.04, '$u-r$', ha='center')
+    fig2.text(0.04, 0.5, 'Densidad de galaxias', va='center', rotation='vertical')
+
+
+def plot_sizemag():
+
+    s_early='#81c97f'
+    s_late='#b980c2'
+    s_blue='#6da5d3'
+    s_red='#ed5e60'
     
+    early = '#4daf4a'
+    late = '#984ea3'
+    blue = "#136cb4"
+    red = '#e41a1c'
+
+    fig, axes = plt.subplots(1,3, figsize=(12,4))
+
+    axes[0].scatter(G['M_pet_r'], np.log10(G['r50']), s=10, c='C0', alpha=0.3)
+    axes[1].scatter(G['M_pet_r'][G['u_r']<2.0], np.log10(G['r50'][G['u_r']<2.0]), s=10, marker='^', c=s_blue, alpha=0.5)
+    axes[1].scatter(G['M_pet_r'][G['u_r']>2.0], np.log10(G['r50'][G['u_r']>2.0]), s=10, marker='s', c=s_red, alpha=0.3)
+    axes[2].scatter(G['M_pet_r'][G['c9050']<2.5], np.log10(G['r50'][G['c9050']<2.5]), s=10, marker='^', c=s_late, alpha=0.5)
+    axes[2].scatter(G['M_pet_r'][G['c9050']>2.5], np.log10(G['r50'][G['c9050']>2.5]), s=10, marker='s', c=s_early, alpha=0.3)
+
+    axes[1].plot(x:=np.arange(G['M_pet_r'].min(),G['M_pet_r'].max(),1), -0.01*x, c=blue)
+    axes[1].plot(x:=np.arange(G['M_pet_r'].min(),G['M_pet_r'].max(),1), -0.01*x+0.3, c=red)
+
+    axes[2].plot(x:=np.arange(G['M_pet_r'].min(),G['M_pet_r'].max(),1), -0.01*x, c=late)
+    axes[2].plot(x:=np.arange(G['M_pet_r'].min(),G['M_pet_r'].max(),1), -0.01*x+0.3, c=early)
 
 if __name__=='__main__':
 
     #plot_color_mag()
-    fit_colormag()
+    #fit_colormag()
+    plot_sizemag()
     plt.show()
     print('no está listo...')
