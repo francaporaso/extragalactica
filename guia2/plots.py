@@ -59,7 +59,7 @@ def plot_problema2():
     ax.set_xlabel('Magnitud petrosiana banda $r$')
     ax.set_ylabel('Redshift $z$')
     ax.legend(loc='upper right', frameon=True)
-    fig.savefig('r_vs_redshift.pdf')
+    #fig.savefig('r_vs_redshift.pdf')
     #plt.show()
 
 def plot_problema4():
@@ -188,13 +188,13 @@ def plot_color_mag():
     fig, ax = plt.subplots(figsize=(5,5))
     
     ## == color bar of concentration
-    cmap = ax.scatter(G['M_pet_r'], G['u_r'], s=5, c=G['c9050'], cmap=cmap, norm=colors.CenteredNorm(vcenter=2.5), alpha=1, facecolor=None)
-    fig.colorbar(cmap, label='$C$')
+    # cmap = ax.scatter(G['M_pet_r'], G['u_r'], s=5, c=G['c9050'], cmap=cmap, norm=colors.CenteredNorm(vcenter=2.5), alpha=1, facecolor=None)
+    # fig.colorbar(cmap, label='$C$')
 
     ## == division by c=2.5
-    # ax.scatter(G['M_pet_r'][~mask], G['u_r'][~mask], s=12, marker='^', edgecolor='C0', facecolor='none', alpha=0.5)
-    # ax.scatter(G['M_pet_r'][mask], G['u_r'][mask], s=12, marker='o', edgecolor='C3', facecolor='none', alpha=0.5)
-    #ax.scatter(G['M_pet_r'], G['u_r'], s=12, marker='o' if G['c9050']<2.5 else 's', edgecolor='C3' if G['c9050']<2.5 else 'C0', facecolor='none', alpha=0.5)
+    ax.scatter(G['M_pet_r'][~mask], G['u_r'][~mask], s=1, marker='^', edgecolor='C0', facecolor='none', alpha=0.5)
+    ax.scatter(G['M_pet_r'][mask], G['u_r'][mask], s=1, marker='o', edgecolor='C3', facecolor='none', alpha=0.5)
+    ### ax.scatter(G['M_pet_r'], G['u_r'], s=12, marker='o' if G['c9050']<2.5 else 's', edgecolor='C3' if G['c9050']<2.5 else 'C0', facecolor='none', alpha=0.5)
 
     ## == hexbin
     #ax.hexbin(G['M_pet_r'], G['u_r'], gridsize=50, bins='log', cmap='binary')
@@ -222,8 +222,15 @@ def fit_colormag():
     ]
 
     quantiles = [f'$M_r<{q[0]:2.2f}$',f'${q[0]:2.2f}<M_r<{q[1]:2.2f}$',f'${q[1]:2.2f}<M_r<{q[2]:2.2f}$',f'$M_r>{q[2]:2.2f}$']
+    mean_mag = [0.5*(G['M_pet_r'].min()+q[0]), 0.5*(q[0]+q[1]), 0.5*(q[1]+q[2]), 0.5*(q[2]+G['M_pet_r'].max())]
 
     fits = [fit_bimodal(G['u_r'][mask[i]], p0=[0.5, 1.5, 0.3, 0.5, 2.5, 0.2], nbins=np.linspace(0.65,3.25,50)) for i in range(4)]
+
+    for i in range(4):
+        ax.errorbar(mean_mag[i],fits[i]['popt'][1],fits[i]['popt'][2], fmt='ob', markeredgecolor='k')
+        ax.plot(mean_mag[i],fits[i]['popt'][1],c='r')
+        ax.errorbar(mean_mag[i],fits[i]['popt'][4],fits[i]['popt'][5], fmt='or', markeredgecolor='k')
+        ax.plot(mean_mag[i],fits[i]['popt'][4],c='b')
 
     fig2, axes = plt.subplots(2,2, sharex=True, sharey=True, figsize=(5,5))
     fig2.subplots_adjust(wspace=0.1, hspace=0.2)
@@ -251,36 +258,69 @@ def fit_colormag():
     fig2.text(0.04, 0.5, 'Densidad de galaxias', va='center', rotation='vertical')
 
 
-def plot_sizemag():
-
-    s_early='#81c97f'
-    s_late='#b980c2'
-    s_blue='#6da5d3'
-    s_red='#ed5e60'
+def plot_luminositysize():
     
-    early = '#4daf4a'
-    late = '#984ea3'
-    blue = "#136cb4"
-    red = '#e41a1c'
+    linear = lambda x, a,b: a*x+b
+    
+    s_early = '#4daf4a'
+    s_late = '#984ea3'
+    s_blue = "#136cb4"
+    s_red = '#e41a1c'
+
+    colors = [
+    "#0b375c",
+    "#690e10",
+    "#5c1d66",
+    "#1a6e17",]
+    # blue_gx = G[G['u_r']<2.0]
+    # red_gx = G[G['u_r']>=2.0]
+    # early_gx = G[G['c9050']<2.5]
+    # late_gx = G[G['c9050']>=2.5]
+
+    samples = [G[G['u_r']<2.0],
+               G[G['u_r']>=2.0],
+               G[G['c9050']<2.5],
+               G[G['c9050']>=2.5]]
 
     fig, axes = plt.subplots(1,3, figsize=(12,4))
+    
+    axes[0].scatter(G['M_pet_r'], np.log10(G['r50']), s=1, c='C0', alpha=0.3)
+    for i in range(4):
+        (a,b), _ = curve_fit(linear, samples[i]['M_pet_r'], np.log10(samples[i]['r50']), p0=[1.0,-2.0])
+        if i<2:
+            axes[1].plot(samples[i]['M_pet_r'], samples[i]['M_pet_r']*a+b, c=colors[i], lw=2.0)
+        else:
+            axes[2].plot(samples[i]['M_pet_r'], samples[i]['M_pet_r']*a+b, c=colors[i], lw=2.0)
 
-    axes[0].scatter(G['M_pet_r'], np.log10(G['r50']), s=10, c='C0', alpha=0.3)
-    axes[1].scatter(G['M_pet_r'][G['u_r']<2.0], np.log10(G['r50'][G['u_r']<2.0]), s=10, marker='^', c=s_blue, alpha=0.5)
-    axes[1].scatter(G['M_pet_r'][G['u_r']>2.0], np.log10(G['r50'][G['u_r']>2.0]), s=10, marker='s', c=s_red, alpha=0.3)
-    axes[2].scatter(G['M_pet_r'][G['c9050']<2.5], np.log10(G['r50'][G['c9050']<2.5]), s=10, marker='^', c=s_late, alpha=0.5)
-    axes[2].scatter(G['M_pet_r'][G['c9050']>2.5], np.log10(G['r50'][G['c9050']>2.5]), s=10, marker='s', c=s_early, alpha=0.3)
+    axes[1].scatter(samples[0]['M_pet_r'], np.log10(samples[0]['r50']), s=1, marker='^', c=s_blue, alpha=0.3)
+    axes[1].scatter(samples[1]['M_pet_r'], np.log10(samples[1]['r50']), s=1, marker='s', c=s_red, alpha=0.3)
+    axes[2].scatter(samples[2]['M_pet_r'], np.log10(samples[2]['r50']), s=1, marker='^', c=s_late, alpha=0.3)
+    axes[2].scatter(samples[3]['M_pet_r'], np.log10(samples[3]['r50']), s=1, marker='s', c=s_early, alpha=0.3)
 
-    axes[1].plot(x:=np.arange(G['M_pet_r'].min(),G['M_pet_r'].max(),1), -0.01*x, c=blue)
-    axes[1].plot(x:=np.arange(G['M_pet_r'].min(),G['M_pet_r'].max(),1), -0.01*x+0.3, c=red)
+    for i in range(3):
+        axes[i].set_xlabel('$M_r$ petrosiana')
+    axes[0].set_ylabel(r'$\log_{10}(r_{50}/\mathrm{kpc})$')
 
-    axes[2].plot(x:=np.arange(G['M_pet_r'].min(),G['M_pet_r'].max(),1), -0.01*x, c=late)
-    axes[2].plot(x:=np.arange(G['M_pet_r'].min(),G['M_pet_r'].max(),1), -0.01*x+0.3, c=early)
+    axes[1].plot([],[],'o',c=s_blue,label='$u_r<2.0$')
+    axes[1].plot([],[],'o',c=s_red,label='$u_r>2.0$')
+
+    axes[1].legend()
+
+
+def plot_cormendy():
+    # x = mu50, y = log r50
+    pass
 
 if __name__=='__main__':
-
+    
+    #plot_problema2()
+    #plot_bimodalcolors()
+    #plot_conc_fracdev()
+    #plot_conc_u_r()
     #plot_color_mag()
     #fit_colormag()
-    plot_sizemag()
+    
+    plot_luminositysize()
     plt.show()
     print('no está listo...')
+    
