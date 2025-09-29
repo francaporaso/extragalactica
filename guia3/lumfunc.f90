@@ -48,6 +48,7 @@ program main
 
     ! ============ get galaxies
     open(unit=utable, file='gals_test.dat', status='unknown')
+    write(utable, *) '# z_gal, M_abs_r, r, K00_{ugriz}, K01_{ugriz}'
     open(unit=udata, file='mgs.dat', status='old', action='read')
     do i=1,nrows
         read(udata, *) z_gal, pet_r, ext_r, r50, (rk_p(k), k=1,5), (rks_p(k), k=1,5)
@@ -61,10 +62,10 @@ program main
 
         M_abs_r = r + dist_mod + corr_ab_r + rks_p(3)
 
-        write(utable, *) z_gal, M_abs_r
+        write(utable, *) z_gal, M_abs_r, r, (rk_p(k), k=1,5), (rks_p(k), k=1,5)
     end do
-    close(utable)
     close(udata)
+    close(utable)
     ! ============
 
 end program main
