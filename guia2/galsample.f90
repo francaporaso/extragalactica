@@ -129,4 +129,4 @@ real function angular_diam_distance(z_obj)
     angular_diam_distance = (chi(j) + (z_obj - z(j))*(chi(j+1)-chi(j))/(z(j+1)-z(j)))/(1.0+z_obj)
 end function
 
-include 'locate.f'
+include '../locate.f'

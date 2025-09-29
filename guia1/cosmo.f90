@@ -37,7 +37,7 @@ contains
     
 end program main
 
-include 'qromb.f'
-include 'trapzd.f'
-include 'polint.f'
+include '../qromb.f'
+include '../trapzd.f'
+include '../polint.f'
 
