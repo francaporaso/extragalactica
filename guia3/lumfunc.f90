@@ -47,27 +47,23 @@ program main
     ! ============
 
     ! ============ get galaxies
-    !open(unit=utable, file='gals_test.dat', status='unknown')
+    open(unit=utable, file='gals_test.dat', status='unknown')
     open(unit=udata, file='mgs.dat', status='old', action='read')
     do i=1,nrows
         read(udata, *) z_gal, pet_r, ext_r, r50, (rk_p(k), k=1,5), (rks_p(k), k=1,5)
         r = pet_r - ext_r
         if ((r<14.5).or.(r>17.77)) cycle
         if (r50<1.5) cycle
-        if (z_gal>0.15) cycle
+        if ((z_gal>0.15).or.(z_gal<=0.0)) cycle
 
         dL = luminosity_distance(z_gal) ! Mpc
         dist_mod = -(5.0*log10(dL)+25.0)
 
         M_abs_r = r + dist_mod + corr_ab_r + rks_p(3)
-        
-        if (M_abs_r<-24.0) then
-            print *, M_abs_r, rks_p(3), z_gal
-        end if
 
-        !write(utable, *) z_gal, M_abs_r
+        write(utable, *) z_gal, M_abs_r
     end do
-    !close(utable)
+    close(utable)
     close(udata)
     ! ============
 
