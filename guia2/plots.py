@@ -7,7 +7,7 @@ import scienceplots
 
 plt.style.use('science')
 _params = {
-    'figure.figsize':(5,3.5),
+    'figure.figsize':(5,4),
     #'figure.figsize':(6.47,4), # golden ratio
     'figure.dpi':96,
     'font.family':'sans-serif',
@@ -67,6 +67,13 @@ def plot_SDSSraw():
     #ax.legend(loc='upper right', frameon=True)
     #fig.savefig('r_vs_redshift.pdf')
     #plt.show()
+
+def plot_volumecomplete():
+    fig, ax = plt.subplots()
+    ax.scatter(G.z, G.M_pet_r, s=1, alpha=0.9, c='C1')
+    ax.invert_yaxis()
+    ax.set_xlabel('Redshift $z$')
+    ax.set_ylabel('Magnitud absoluta $M_r$')
 
 def plot_bimodalcolors(savename=None):
 
@@ -382,13 +389,14 @@ def plot_kormendy():
 
 if __name__=='__main__':
     
-    plot_SDSSraw()
-    plot_bimodalcolors()
-    plot_conc_fracdev()
-    plot_conc_u_r()
-    plot_color_mag()
-    fit_colormag()
-    plot_luminositysize()
-    plot_kormendy()
+    #plot_SDSSraw()
+    plot_volumecomplete()
+    #plot_bimodalcolors()
+    #plot_conc_fracdev()
+    #plot_conc_u_r()
+    #plot_color_mag()
+    #fit_colormag()
+    #plot_luminositysize()
+    #plot_kormendy()
     plt.show()
     
