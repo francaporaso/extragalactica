@@ -37,8 +37,8 @@ program main
     real :: r
     real :: dL, dist_mod
     real :: M_abs_r
-    real :: dL_min, dL_max
-    real :: zmin, zmax
+    real :: dL_max
+    real :: zmax
     real :: Vmax
 
     real, external :: luminosity_distance, integrand_vmax, get_z
@@ -55,7 +55,7 @@ program main
     open(unit=utable, file='gals_test.dat', status='unknown')
     write(utable, *) '# z_gal, M_abs_r, r, K00_{ugriz}, K01_{ugriz}'
     open(unit=udata, file='mgs.dat', status='old', action='read')
-    do i=1,1
+    do i=1,nrows
         read(udata, *) z_gal, pet_r, ext_r, r50, (rk_p(k), k=1,5), (rks_p(k), k=1,5)
         r = pet_r - ext_r
         if ((r<14.5).or.(r>17.77)) cycle
@@ -69,12 +69,11 @@ program main
         if ((M_abs_r<-23).or.(M_abs_r>-16)) cycle
 
         ! === Vmax weights
-        !dL_min = 10.0**(-0.2*(M_abs_r - rmin + 25.0))
         dL_max = 10.0**(-0.2*(M_abs_r - rmax + 25.0))
 
         zmax = get_z(dL_max)
         call qromb(integrand_vmax, 0.0, zmax, Vmax)
-        print *, M_abs_r, z_gal, dL, dL_max, 1.0/(Vmax*c/H0)
+        write(utable,*) M_abs_r, z_gal, dL, dL_max, 1.0/(Vmax*c/H0)
         
         !write(utable, *) z_gal, M_abs_r, r, (rk_p(k), k=1,5), (rks_p(k), k=1,5)
     end do
