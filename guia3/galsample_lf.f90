@@ -42,7 +42,7 @@ program main
     real :: Vmax, wi
 
     integer :: nbin=20, jbin
-    integer, dimension(nbin) :: bincount = ()
+    integer, dimension(20) :: bincount = 0
     real :: dx
 
     real, external :: luminosity_distance, integrand_vmax, get_z
@@ -76,7 +76,7 @@ program main
         zmax = get_z(dL_max)
         call qromb(integrand_vmax, 0.0, zmax, Vmax)
         wi = H0/(Vmax*c)
-        
+
         ! === bin
         dx = (-16+23)/real(nbin)
         jbin = int((M_abs_r - (-23))/dx) + 1
@@ -84,6 +84,7 @@ program main
         !write(utable,*) M_abs_r, r+corr_ab_r, z_gal, wi
     
     end do
+    print *, bincount
     close(udata)
     close(utable)
     ! ============
