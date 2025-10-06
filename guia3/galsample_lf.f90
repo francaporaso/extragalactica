@@ -39,7 +39,11 @@ program main
     real :: M_abs_r
     real :: dL_max
     real :: zmax
-    real :: Vmax
+    real :: Vmax, wi
+
+    integer :: nbin=20, jbin
+    integer, dimension(nbin) :: bincount = ()
+    real :: dx
 
     real, external :: luminosity_distance, integrand_vmax, get_z
     
@@ -53,7 +57,6 @@ program main
 
     ! ============ get galaxies
     open(unit=utable, file='gals_test.dat', status='unknown')
-    write(utable, *) '# z_gal, M_abs_r, r, K00_{ugriz}, K01_{ugriz}'
     open(unit=udata, file='mgs.dat', status='old', action='read')
     do i=1,nrows
         read(udata, *) z_gal, pet_r, ext_r, r50, (rk_p(k), k=1,5), (rks_p(k), k=1,5)
@@ -70,12 +73,16 @@ program main
 
         ! === Vmax weights
         dL_max = 10.0**(-0.2*(M_abs_r - rmax + 25.0))
-
         zmax = get_z(dL_max)
         call qromb(integrand_vmax, 0.0, zmax, Vmax)
-        write(utable,*) M_abs_r, z_gal, dL, dL_max, 1.0/(Vmax*c/H0)
+        wi = H0/(Vmax*c)
         
-        !write(utable, *) z_gal, M_abs_r, r, (rk_p(k), k=1,5), (rks_p(k), k=1,5)
+        ! === bin
+        dx = (-16+23)/real(nbin)
+        jbin = int((M_abs_r - (-23))/dx) + 1
+        bincount(jbin) = bincount(jbin) + 1
+        !write(utable,*) M_abs_r, r+corr_ab_r, z_gal, wi
+    
     end do
     close(udata)
     close(utable)
