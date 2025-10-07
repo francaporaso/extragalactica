@@ -28,7 +28,7 @@ plt.rcParams.update(_params)
 
 _folder = 'figures/'
 
-SDSS = pd.read_csv('SDSS_guia2_fmcaporaso.csv')
+#SDSS = pd.read_csv('SDSS_guia2_fmcaporaso.csv')
 
 G = pd.read_fwf('gals.dat')
 G.query('u_r < 4.0 and u_r > 0 and g_r < 1.3 and c9050 > 1.5 and c9050 < 4', inplace=True)
@@ -112,7 +112,7 @@ def plot_bimodalcolors(savename=None):
                        g_r['popt'], np.sqrt(np.diag(g_r['cov']))]).T,
             header='u-r_popt u-r_perr g-r_popt g-r_perr',
             comments='#w1 mu1 sigma1 w2 mu2 sigma2 \n',
-            fmt='%8.6G', 
+            fmt='%8.6G',
         )
 
 def plot_conc_fracdev():
@@ -132,12 +132,12 @@ def plot_conc_fracdev():
 def plot_conc_u_r():
     fig, ax = plt.subplots(figsize=(5,5))
     ax.scatter(G['c9050'], G['u_r'], s=1, alpha=0.2, c='C1')
-    ax.axvline(2.5, ls='--', lw=1., c='k') # 
+    ax.axvline(2.5, ls='--', lw=1., c='k') #
     ax.axhline(2.0, ls='--', lw=1., c='k') # color
-    
+
     ax.set_xlabel('Índice de concentración $C$')
     ax.set_ylabel('$u-r$')
-    
+
 def plot_color_mag():
     blue = "#136cb4"
     red = "#e0282b"
@@ -152,7 +152,7 @@ def plot_color_mag():
 
     mask = G['c9050'] > 2.5
     fig, ax = plt.subplots(figsize=(5,5))
-    
+
     ## == color bar of concentration
     # cmap = ax.scatter(G['M_pet_r'], G['u_r'], s=5, c=G['c9050'], cmap=cmap, norm=colors.CenteredNorm(vcenter=2.5), alpha=1, facecolor=None)
     # fig.colorbar(cmap, label='$C$')
@@ -176,14 +176,14 @@ def fit_colormag():
     q = np.quantile(G['M_pet_r'], [0.25,0.50,0.75])
     print(q)
     fig, ax = plot_color_mag()
-    
+
     for i in range(3):
         ax.axvline(q[i], ls='--', c='k', alpha=0.8)
 
     mask = [
-        G['M_pet_r']<q[0], 
-        (G['M_pet_r']>q[0])&(G['M_pet_r']<q[1]), 
-        (G['M_pet_r']>q[1])&(G['M_pet_r']<q[2]), 
+        G['M_pet_r']<q[0],
+        (G['M_pet_r']>q[0])&(G['M_pet_r']<q[1]),
+        (G['M_pet_r']>q[1])&(G['M_pet_r']<q[2]),
         G['M_pet_r']>q[2]
     ]
 
@@ -202,7 +202,7 @@ def fit_colormag():
     axesflat = axes.flatten()
     for i in range(4):
         axesflat[i].axvline(2.0,ls='--',c='k',alpha=0.8)
-                
+
         axesflat[i].stairs(edges=fits[i]['xedges'], values=fits[i]['y'],
                 hatch='///', color='dimgray')
         axesflat[i].plot(fits[i]['x'], fits[i]['yfit'],
@@ -224,9 +224,9 @@ def fit_colormag():
 
 
 def plot_luminositysize():
-    
+
     linear = lambda x, a,b: a*x+b
-    
+
     s_early = '#4daf4a'
     s_late = '#984ea3'
     s_blue = "#136cb4"
@@ -237,7 +237,7 @@ def plot_luminositysize():
     "#690e10",
     "#5c1d66",
     "#1a6e17",]
-    
+
     ### C grande -> luz concentrada en el centro -> early
     ### C chico -> luz desparramada -> late
     ### u-r grande -> mayor mag in r -> roja
@@ -283,7 +283,7 @@ def plot_luminositysize():
 
     earlyred = samples[1][G['c9050']>=2.5]
     lateblue = samples[0][G['c9050']<2.5]
-        
+
     ax.scatter(earlyred['M_pet_r'], np.log10(earlyred['r50']), s=0.8, marker='o', c='r', alpha=0.5)
     (a,b), _ = curve_fit(linear, earlyred['M_pet_r'], np.log10(earlyred['r50']), p0=[1.0,-2.0])
     ax.plot(earlyred['M_pet_r'], earlyred['M_pet_r']*a+b, c=colors[1], lw=2.0)
@@ -293,7 +293,7 @@ def plot_luminositysize():
     (a,b), _ = curve_fit(linear, lateblue['M_pet_r'], np.log10(lateblue['r50']), p0=[1.0,-2.0])
     ax.plot(lateblue['M_pet_r'], lateblue['M_pet_r']*a+b, c=colors[0], lw=2.0)
     ax.text(-22,0.87,f'${a=:2.2f}, {b=:2.2f}$',fontsize=12, c=colors[0])
-    
+
     ax.plot([],[],'o', markersize=5, c='r', label='Rojo + early')
     ax.plot([],[],'o', markersize=5, c='b', label='Azul + late')
 
@@ -305,9 +305,9 @@ def plot_luminositysize():
 
 def plot_kormendy():
     # x = logr50, y = mu50
-    
+
     linear = lambda x, a,b: a*x+b
-    
+
     s_early = '#4daf4a'
     s_late = '#984ea3'
     s_blue = "#136cb4"
@@ -318,7 +318,7 @@ def plot_kormendy():
     "#690e10",
     "#5c1d66",
     "#1a6e17",]
-    
+
     ### C grande -> luz concentrada en el centro -> early
     ### C chico -> luz desparramada -> late
     ### u-r grande -> mayor mag in r -> roja
@@ -363,10 +363,10 @@ def plot_kormendy():
 
     fig2, ax = plt.subplots(figsize=(5,5))
     ax.invert_yaxis()
-    
+
     earlyred = samples[1][G['c9050']>=2.5]
     lateblue = samples[0][G['c9050']<2.5]
-        
+
     ax.scatter(np.log10(earlyred['r50']), earlyred['mu50'], s=0.8, marker='o', c='r', alpha=0.5)
     # (a,b), _ = curve_fit(linear, np.log10(earlyred['r50']), earlyred['mu50'], p0=[1.0,-2.0])
     # ax.plot(np.log10(earlyred['r50']), np.log10(earlyred['r50'])*a+b, c=colors[1], lw=2.0)
@@ -376,7 +376,7 @@ def plot_kormendy():
     # (a,b), _ = curve_fit(linear, np.log10(lateblue['r50']), lateblue['mu50'], p0=[4.0,20.0])
     # ax.plot(np.log10(lateblue['r50']), np.log10(lateblue['r50'])*a+b, c=colors[0], lw=2.0)
     # ax.text(-22,0.87,f'${a=:2.2f}, {b=:2.2f}$',fontsize=12, c=colors[0]k)
-    
+
     ax.plot([],[],'o', markersize=5, c='r', label='Rojo + early')
     ax.plot([],[],'o', markersize=5, c='b', label='Azul + late')
 
@@ -388,10 +388,10 @@ def plot_kormendy():
 
 
 if __name__=='__main__':
-    
+
     #plot_SDSSraw()
-    plot_volumecomplete()
-    #plot_bimodalcolors()
+    #plot_volumecomplete()
+    plot_bimodalcolors('fig5_')
     #plot_conc_fracdev()
     #plot_conc_u_r()
     #plot_color_mag()
@@ -399,4 +399,4 @@ if __name__=='__main__':
     #plot_luminositysize()
     #plot_kormendy()
     plt.show()
-    
+
