@@ -28,7 +28,7 @@ plt.rcParams.update(_params)
 
 _folder = 'figures/'
 
-#SDSS = pd.read_csv('SDSS_guia2_fmcaporaso.csv')
+SDSS = pd.read_csv('SDSS_guia2_fmcaporaso.csv')
 
 G = pd.read_fwf('gals.dat')
 G.query('u_r < 4.0 and u_r > 0 and g_r < 1.3 and c9050 > 1.5 and c9050 < 4', inplace=True)
