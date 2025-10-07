@@ -37,14 +37,9 @@ program main
     real :: r
     real :: dL, dist_mod
     real :: M_abs_r
-    real :: dL_max
-    real :: zmax
+    real :: dL_max, zmax
     real :: Vmax, wi
-
-    integer :: nbin=20, jbin
-    integer, dimension(20) :: bincount = 0
-    real :: dx
-
+    
     real, external :: luminosity_distance, integrand_vmax, get_z
     
     ! ============ open cosmo.dat table    
@@ -77,14 +72,9 @@ program main
         call qromb(integrand_vmax, 0.0, zmax, Vmax)
         wi = H0/(Vmax*c)
 
-        ! === bin
-        dx = (-16+23)/real(nbin)
-        jbin = int((M_abs_r - (-23))/dx) + 1
-        bincount(jbin) = bincount(jbin) + 1
-        !write(utable,*) M_abs_r, r+corr_ab_r, z_gal, wi
+        write(utable,*) M_abs_r, r+corr_ab_r, z_gal, wi
     
     end do
-    print *, bincount
     close(udata)
     close(utable)
     ! ============
