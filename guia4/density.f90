@@ -1,10 +1,10 @@
 module galaxias
     implicit none
     integer, parameter :: ngals=5725
-    integer :: cls_gal
-    integer :: ig_gal
-    integer :: ty_gal
-    real :: ra_gal, dec_gal
+    integer, dimension(ngals) :: cls_gal
+    integer, dimension(ngals) :: ig_gal ! galaxy index
+    integer, dimension(ngals) :: ty_gal ! tipo morf-> 1:E 2:S 3:Irr 4:Nosesabe
+    real, dimension(ngals) :: ra_gal, dec_gal
 end module galaxias
 
 module clusters
@@ -28,31 +28,29 @@ program main
     use clusters
     implicit none
     integer, parameter :: ugals=11, ucluster=12
-    integer :: i
+    integer :: i, j
     real :: sep = 0.0
 
-    ! open(unit=ugals, file='galaxias.dat', status='old')
-    ! read(ugals, *)
-    ! do i=1, 1
-    !     read(ugals, *) cls_gal, ig_gal, ra_gal, dec_gal, ty_gal
-    ! end do
-    ! close(ugals)
+    open(unit=ugals, file='galaxias.dat', status='old')
+    read(ugals, *)
+    do i=1, ngals
+        read(ugals, *) cls_gal(i), ig_gal(i), ra_gal(i), dec_gal(i), ty_gal(i)
+    end do
+    close(ugals)
    
-    ! open(unit=ucluster, file='centros.dat', status='old')
-    ! read(ucluster, *)
-    ! do i=1, 1
-    !     read(ucluster, *) cls_cl, nmember, redshift_cl, ra_cl, dec_cl
-    ! end do
-    ! close(ucluster)
+    open(unit=ucluster, file='centros.dat', status='old')
+    read(ucluster, *)
+    do i=1, 1
+        read(ucluster, *) cls_cl, nmember, redshift_cl, ra_cl, dec_cl
 
-    !call angular_distance(ra_gal, dec_gal, ra_cl, dec_cl, sep)
+        do j=1,ngals
+            if (cls_gal(j)/=cls_cl) cycle
+            print *, cls_gal(j)
+        end do
+    
+    end do
+    close(ucluster)
 
-    ra_gal=10.0
-    dec_gal=10.0
-    ra_cl=15.0
-    dec_cl=10.0
-    call angular_distance(ra_gal, dec_gal, ra_cl, dec_cl, sep)
-    print *, ra_gal, dec_gal, ra_cl, dec_cl, sep
 
 end program main
 
