@@ -29,27 +29,33 @@ program main
     implicit none
     integer, parameter :: ugals=11, ucluster=12
     integer :: i, j
-    real :: sep = 0.0
+    real, dimension(79) :: ra, dec
 
     open(unit=ugals, file='galaxias.dat', status='old')
-    read(ugals, *)
+    read(ugals, *) ! read header
     do i=1, ngals
         read(ugals, *) cls_gal(i), ig_gal(i), ra_gal(i), dec_gal(i), ty_gal(i)
     end do
     close(ugals)
    
     open(unit=ucluster, file='centros.dat', status='old')
-    read(ucluster, *)
-    do i=1, 1
-        read(ucluster, *) cls_cl, nmember, redshift_cl, ra_cl, dec_cl
+    read(ucluster, *) ! read header
+    read(ucluster, *) cls_cl, nmember, redshift_cl, ra_cl, dec_cl
+    
+    !probar para 1 cluster primero
+    ! do i=1,79
+    !     ra(i), dec(i)
+    ! end do
 
-        do j=1,ngals
-            if (cls_gal(j)/=cls_cl) cycle
-            print *, cls_gal(j)
-        end do
-        
-
-    end do
+    ! do i=1, 79
+    !     a1 = ra(i)
+    !     d1 = dec(i)
+    !     do j=1,79
+    !         if (j==i) cycle
+    !         sep = angular_distance(a1, d1, ra(j), dec(j))
+    !     end do
+    ! end do
+    
     close(ucluster)
 
 
