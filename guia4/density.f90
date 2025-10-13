@@ -47,7 +47,8 @@ program main
             if (cls_gal(j)/=cls_cl) cycle
             print *, cls_gal(j)
         end do
-    
+        
+
     end do
     close(ucluster)
 
