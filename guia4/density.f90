@@ -11,7 +11,7 @@ module clusters
     implicit none
     integer, parameter :: ncluster=56
     integer :: cls_cl
-    integer :: nmember
+    integer :: nmem
     real :: redshift_cl
     real :: ra_cl, dec_cl
 end module clusters
@@ -28,20 +28,36 @@ program main
     use clusters
     implicit none
     integer, parameter :: ugals=11, ucluster=12
-    integer :: i, j
+    integer :: i, j, k
     real, dimension(79) :: ra, dec
+    real :: sep
+    
+    open(unit=ucluster, file='centros.dat', status='old')
+    read(ucluster, *) ! read header
+    read(ucluster, *) cls_cl, nmem, redshift_cl, ra_cl, dec_cl
+    close(ucluster)
 
     open(unit=ugals, file='galaxias.dat', status='old')
     read(ugals, *) ! read header
+    j = 1
     do i=1, ngals
         read(ugals, *) cls_gal(i), ig_gal(i), ra_gal(i), dec_gal(i), ty_gal(i)
+        if (cls_gal(i)==cls_cl) then
+            ra(j)=ra_gal(i)
+            dec(j)=dec_gal(i)
+            j = j+1
+        end if
     end do
     close(ugals)
-   
-    open(unit=ucluster, file='centros.dat', status='old')
-    read(ucluster, *) ! read header
-    read(ucluster, *) cls_cl, nmember, redshift_cl, ra_cl, dec_cl
     
+    do j=1, nmem
+        do k=1, nmem
+            if (k==j) cycle
+            call angular_distance(ra(j), dec(j), ra(k), dec(k), sep)
+            print *, sep
+        end do
+    end do
+
     !probar para 1 cluster primero
     ! do i=1,79
     !     ra(i), dec(i)
@@ -56,7 +72,6 @@ program main
     !     end do
     ! end do
     
-    close(ucluster)
 
 
 end program main
