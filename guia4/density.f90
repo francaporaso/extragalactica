@@ -78,7 +78,7 @@ program main
             call indexx_sp(dist_gal, indx_gal)
 
             proj_density = 10.0/(pi*dist_gal(indx_gal(10))**2)
-            write(utable, *) proj_density, ty_gal(indx_gal(10))
+            write(utable, *) log10(proj_density), ty_gal(indx_gal(10))
         end do
         
         deallocate(dist_gal, indx_gal)
