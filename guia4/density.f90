@@ -3,7 +3,7 @@ module galaxias
     integer, parameter :: ngals=5725
     integer, allocatable :: cls_gal(:)
     integer, allocatable :: ig_gal(:) ! galaxy index
-    integer, allocatable :: ty_gal(:) ! tipo morf-> 1:E 2:S 3:Irr 4:Nosesabe
+    integer, allocatable :: ty_gal(:) ! tipo morf-> 1:E 2:S0 3:S 4:Nosesabe
     real, allocatable :: ra_gal(:), dec_gal(:)
 end module galaxias
 
@@ -36,8 +36,10 @@ program main
     integer, parameter :: ugals=11, ucluster=12, utable=13
     integer :: i, j, k
     integer, allocatable :: indx_gal(:)
-    real :: sep, dist_cl
+    real :: sep, dist_cl, proj_density
     real, allocatable :: dist_gal(:)
+
+    real :: a1, d1, a2, d2
 
     real, external :: angular_distance
     
@@ -47,39 +49,46 @@ program main
     open(unit=ucluster, file='centros.dat', status='old')
     read(ucluster, *) ! read header
     
-    !open(unit=utable, file='distances.dat', status='unknown')
+    open(unit=utable, file='distances.dat', status='unknown')
 
     do i=1, ncluster
         
         read(ucluster, *) cls_cl, nmem, redshift_cl, ra_cl, dec_cl
         dist_cl = redshift_cl*cvel/H0
 
-        allocate(cls_gal(nmem), ig_gal(nmem), ra_gal(i), dec_gal(nmem), ty_gal(nmem))
+        allocate(cls_gal(nmem), ig_gal(nmem), ra_gal(nmem), dec_gal(nmem), ty_gal(nmem))
         allocate(dist_gal(nmem), indx_gal(nmem))
-                
-        do j=1, nmem        
-            read(ugals, *) cls_gal(j), ig_gal(j), ra_gal(i), dec_gal(j), ty_gal(j)
-        end do
 
+        dist_gal = 99999999999999999999.0
+        
         do j=1, nmem
+            read(ugals, *) cls_gal(j), ig_gal(j), ra_gal(j), dec_gal(j), ty_gal(j)
+        end do
+        
+        do j=1, nmem
+            a1 = ra_gal(j)
+            d1 = dec_gal(j)
             do k=1, nmem
-                if (k==j) cycle
-                sep = angular_distance(ra_gal(j), dec_gal(j), ra_gal(k), dec_gal(k))
+                a2 = ra_gal(k)
+                d2 = dec_gal(k)
+                if (j==k) cycle
+                sep = angular_distance(a1, d1, a2, d2)
                 dist_gal(k) = tan(sep)*dist_cl
             end do
-
             call indexx_sp(dist_gal, indx_gal)
-            print *, dist_gal(indx_gal(10))
-        
+
+            proj_density = 10.0/(pi*dist_gal(indx_gal(10))**2)
+            write(utable, *) proj_density, ty_gal(indx_gal(10))
         end do
         
-        deallocate(cls_gal, ig_gal, ra_gal, dec_gal, ty_gal, dist_gal, indx_gal)
-    
+        deallocate(dist_gal, indx_gal)
+        deallocate(cls_gal, ig_gal, ra_gal, dec_gal, ty_gal)
+        
     end do
     
     close(ucluster)
     close(ugals)
-    !close(utable)
+    close(utable)
 
 end program main
 
@@ -87,10 +96,16 @@ real function angular_distance(ra1, dec1, ra2, dec2)
     use const
     implicit none
     real, intent(in) :: ra1, dec1, ra2, dec2
+    real :: a1, d1, a2, d2
     real :: dra, cos_sep
 
-    dra = abs(ra2-ra1)
-    cos_sep = sin(d2r*dec1)*sin(d2r*dec2) + cos(d2r*dec1)*cos(d2r*dec2)*cos(d2r*dra)
+    ! dra = abs(ra2-ra1)
+    dra = pi/180.0*(ra2-ra1)
+    d1 = dec1*pi/180.0
+    d2 = dec2*pi/180.0
+    a1 = ra1*pi/180.0
+    a2 = ra2*pi/180.0
+    cos_sep = sin(d1)*sin(d2) + cos(d1)*cos(d2)*cos(dra)
     angular_distance = acos(cos_sep)
     
 end function angular_distance
