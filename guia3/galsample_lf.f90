@@ -71,10 +71,10 @@ program main
         zmax = get_z(dL_max)
         print *, zmax
 
-        !call qromb(integrand_vmax, 0.0, zmax, Vmax)
-        !wi = H0/(Vmax*c)
+        call qromb(integrand_vmax, 0.0, zmax, Vmax)
+        wi = H0/(Vmax*c)
 
-        !write(utable,*) M_abs_r, r+corr_ab_r, z_gal, wi
+        write(utable,*) M_abs_r, r+corr_ab_r, z_gal, wi
     
     end do
     close(udata)
