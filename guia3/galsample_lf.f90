@@ -53,7 +53,7 @@ program main
     ! ============ get galaxies
     open(unit=utable, file='gals_test.dat', status='unknown')
     open(unit=udata, file='mgs.dat', status='old', action='read')
-    do i=1,10!nrows
+    do i=1, nrows
         read(udata, *) z_gal, pet_r, ext_r, r50, (rk_p(k), k=1,5), (rks_p(k), k=1,5)
         r = pet_r - ext_r
         if ((r<14.5).or.(r>17.77)) cycle
@@ -69,7 +69,6 @@ program main
         ! === Vmax weights
         dL_max = 10.0**(-0.2*(M_abs_r - rmax + 25.0))
         zmax = get_z(dL_max)
-        print *, zmax
 
         call qromb(integrand_vmax, 0.0, zmax, Vmax)
         wi = H0/(Vmax*c)
