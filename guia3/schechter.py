@@ -8,7 +8,7 @@ plt.style.use('science')
 _params = {
     'figure.figsize':(5,4),
     #'figure.figsize':(6.47,4), # golden ratio
-    'figure.dpi':96,
+    'figure.dpi':150,
     'font.family':'sans-serif',
     'font.size':12,
     'savefig.format':'png',
@@ -87,7 +87,7 @@ def plot_lf(lf, popt, cov):
     errs = transform_errs_ABC2schechter(*popt, *e)
 
     params_text = (
-        f'$\phi^{{*}} = ({10**4*params["phi_star"]:2.1f} \pm {10**4*errs["phi_star"]:2.1f}) \\times 10^{{-4}}$\n'
+        f'$\phi^{{*}} = ({10**3*params["phi_star"]:2.1f} \pm {10**3*errs["phi_star"]:2.1f}) \\times 10^{{-3}}$\n'
         f'$M^{{*}} = {params["M_star"]:2.2f} \pm {errs["M_star"]:2.2f}$\n'
         f'$\\alpha = {params["alpha"]:2.2f} \pm {errs["alpha"]:2.2f}$'
     )
@@ -123,4 +123,4 @@ if __name__ == '__main__':
     print(f'{errs=}')
 
     plot_lf(lf, popt, cov)
-    plt.show()
+    plt.savefig(_folder+'lum_func.png')
