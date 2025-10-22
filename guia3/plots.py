@@ -45,10 +45,17 @@ def plot_kcorr(g):
     fig.align_ylabels(axes[:,1])
     fig.subplots_adjust(wspace=0.3)
 
+def plot_magz(g):
+    fig, ax = plt.subplots()
+    ax.plot(g['z_gal'], g['pet_r'], '.')
+
 if __name__ == '__main__':
     columns = ['z_gal', 'pet_r', 'ext_r', 'r50']+[f'rk_p({k})' for k in range(5)]+[f'rks_p({k})' for k in range(5)]
     g = pd.read_fwf('mgs.dat', names=columns)
     g.query('z_gal<0.3', inplace=True)
 
-    plot_kcorr(g)
-    plt.savefig(_folder+'kcorr.png')
+    # plot_kcorr(g)
+    # plt.savefig(_folder+'kcorr.png')
+
+    plot_magz(g)
+    plt.show()
