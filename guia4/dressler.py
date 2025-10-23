@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
-g = pd.read_fwf('distances.dat', names=['proj_den', 'ty'])
+g = pd.read_fwf('density_data.dat', names=['proj_den', 'ty'])
 
 nbins = 10
 
@@ -21,12 +21,14 @@ spir, _ = np.histogram(np.log10(S['proj_den']), bins=b)
 
 x = 0.5*(b[1:]+b[:-1])
 
+print(ell, lent, spir)
+
 print(ell/gx)
 
-fig, ax = plt.subplots()
-ax.plot(x, ell/gx, '.-', label='E')
-ax.plot(x, lent/gx, '.-', label='S0')
-ax.plot(x, spir/gx, '.-', label='S')
+# fig, ax = plt.subplots()
+# ax.plot(x, ell/gx, '.-', label='E')
+# ax.plot(x, lent/gx, '.-', label='S0')
+# ax.plot(x, spir/gx, '.-', label='S')
 
-ax.legend()
-plt.show()
+# ax.legend()
+# plt.show()

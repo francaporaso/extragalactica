@@ -49,8 +49,8 @@ program main
     open(unit=ucluster, file='centros.dat', status='old')
     read(ucluster, *) ! read header
     
-    open(unit=utable, file='distances.dat', status='unknown')
-
+    open(unit=utable, file='density_data.dat', status='unknown')
+    
     do i=1, ncluster
         
         read(ucluster, *) cls_cl, nmem, redshift_cl, ra_cl, dec_cl
@@ -59,7 +59,7 @@ program main
         allocate(cls_gal(nmem), ig_gal(nmem), ra_gal(nmem), dec_gal(nmem), ty_gal(nmem))
         allocate(dist_gal(nmem), indx_gal(nmem))
 
-        dist_gal = 99999999999999999999.0
+        dist_gal = 9999.0
         
         do j=1, nmem
             read(ugals, *) cls_gal(j), ig_gal(j), ra_gal(j), dec_gal(j), ty_gal(j)
@@ -78,7 +78,7 @@ program main
             call indexx_sp(dist_gal, indx_gal)
 
             proj_density = 10.0/(pi*dist_gal(indx_gal(10))**2)
-            write(utable, *) log10(proj_density), ty_gal(indx_gal(10))
+            write(utable, *) proj_density, ty_gal(indx_gal(10))
         end do
         
         deallocate(dist_gal, indx_gal)
