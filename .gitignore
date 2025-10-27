@@ -12,8 +12,6 @@
 **.dat
 **.csv
 **.csv.gz
-# ======= jupyter notebooks
-**.ipynb
 # ======= folders
 **.ipynb_checkpoints/
 **/figures/
