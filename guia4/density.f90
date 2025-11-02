@@ -96,16 +96,11 @@ real function angular_distance(ra1, dec1, ra2, dec2)
     use const
     implicit none
     real, intent(in) :: ra1, dec1, ra2, dec2
-    real :: a1, d1, a2, d2
     real :: dra, cos_sep
 
     ! dra = abs(ra2-ra1)
-    dra = pi/180.0*(ra2-ra1)
-    d1 = dec1*pi/180.0
-    d2 = dec2*pi/180.0
-    a1 = ra1*pi/180.0
-    a2 = ra2*pi/180.0
-    cos_sep = sin(d1)*sin(d2) + cos(d1)*cos(d2)*cos(dra)
+    dra = d2r*(ra2-ra1)
+    cos_sep = sin(d2r*dec1)*sin(d2r*dec2) + cos(d2r*dec1)*cos(d2r*dec2)*cos(dra)
     angular_distance = acos(cos_sep)
     
 end function angular_distance

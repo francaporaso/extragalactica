@@ -1,12 +1,12 @@
 program main
     implicit none
     integer, parameter :: utable = 11
-    integer, parameter :: nbins = 10
+    integer, parameter :: nbins = 12
     integer, parameter :: ngals = 5725
     integer :: i, j, jbin
     real :: dx, proj_den, logproj_den
     integer :: ty
-    real, parameter :: logden_min = -0.5, logden_max = 2.8
+    real, parameter :: logden_min = -0.6, logden_max = 2.8
     integer, dimension(nbins) :: ell=0, s0=0, sirr=0, tot=0
     
     open(unit=utable, file='density_data.dat', status='old')
@@ -29,7 +29,8 @@ program main
     close(utable)
     
     do j=1, nbins
-        write(12, *) logden_min+(j-1)*dx, logden_min+j*dx, tot(j), ell(j)/real(tot(j)), s0(j)/real(tot(j)), sirr(j)/real(tot(j))
+        write(12, *) logden_min+(j-1)*dx, logden_min+j*dx, logden_min+0.5*(2*j-1)*dx, tot(j), ell(j)/real(tot(j)), &
+                     s0(j)/real(tot(j)), sirr(j)/real(tot(j))
     end do
     close(12)
 
