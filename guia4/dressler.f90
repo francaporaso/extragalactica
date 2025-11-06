@@ -1,12 +1,12 @@
 program main
     implicit none
     integer, parameter :: utable = 11
-    integer, parameter :: nbins = 12
+    integer, parameter :: nbins = 11
     integer, parameter :: ngals = 5725
     integer :: i, j, jbin
     real :: dx, proj_den, logproj_den
     integer :: ty
-    real, parameter :: logden_min = -0.6, logden_max = 2.8
+    real, parameter :: logden_min = -0.5, logden_max = 2.5
     integer, dimension(nbins) :: ell=0, s0=0, sirr=0, tot=0
     
     open(unit=utable, file='density_data.dat', status='old')
