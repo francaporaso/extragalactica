@@ -15,9 +15,9 @@ def bimodal(x, w1, mu1, sigma1, w2, mu2, sigma2):
 def chisq(yobs, yfit):
     return np.sum((yobs-yfit)**2/yfit)
 
-def fit_bimodal(dist, p0, nbins=50, plots=False):
+def fit_bimodal(dist, p0, weights=None, nbins=50, plots=False):
 
-    y, xedges = np.histogram(dist, bins=nbins, density=True)
+    y, xedges = np.histogram(dist, bins=nbins, density=True, weights=weights)
     x = 0.5*(xedges[:-1]+xedges[1:])
     
     popt, cov = curve_fit(
@@ -34,21 +34,22 @@ def fit_bimodal(dist, p0, nbins=50, plots=False):
     print(f'{popt[0]+popt[3]=}')
 
     if plots:
-        plt.figure()
+        fig, ax = plt.subplots()
         
-        plt.stairs(edges=xedges, values=y, hatch='///', color='dimgray')
-        plt.plot(x, yfit, label='Ajuste bimodal', c='k', lw=2)
-        plt.plot(x, popt[0]*normal(x,popt[1],popt[2]), label='Comp 1', c='C0', ls='--')
-        plt.plot(x, popt[3]*normal(x,popt[4],popt[5]), label='Comp 2', c='C3', ls='--')
+        ax.stairs(edges=xedges, values=y, hatch='///', color='dimgray')
+        ax.plot(x, yfit, label='Ajuste bimodal', c='k', lw=2)
+        ax.plot(x, popt[0]*normal(x,popt[1],popt[2]), label='Comp 1', c='C0', ls='--')
+        ax.plot(x, popt[3]*normal(x,popt[4],popt[5]), label='Comp 2', c='C3', ls='--')
         
-        plt.xlabel('Dist')
-        plt.ylabel('Densidad de objetos')
+        ax.set_xlabel('Dist')
+        ax.set_ylabel('Densidad de objetos')
 
-
-        plt.legend()
+        ax.legend()
         #plt.show()
+    else:
+        ax = None
 
-    return dict(x=x, xedges=xedges, y=y, yfit=yfit, popt=popt, cov=cov)
+    return dict(x=x, xedges=xedges, y=y, yfit=yfit, popt=popt, cov=cov, ax=ax)
 
 if __name__ == '__main__':
 
