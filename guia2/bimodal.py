@@ -15,7 +15,7 @@ def bimodal(x, w1, mu1, sigma1, w2, mu2, sigma2):
 def chisq(yobs, yfit):
     return np.sum((yobs-yfit)**2/yfit)
 
-def fit_bimodal(dist, p0, weights=None, nbins=50, plots=False):
+def fit_bimodal(dist, p0, weights=None, nbins=50, plots=False, verbose=False):
 
     y, xedges = np.histogram(dist, bins=nbins, density=True, weights=weights)
     x = 0.5*(xedges[:-1]+xedges[1:])
@@ -29,9 +29,10 @@ def fit_bimodal(dist, p0, weights=None, nbins=50, plots=False):
 
     yfit = bimodal(x, *popt)
     #print(popt, cov)
-    print(f'{popt=}, \n{np.sqrt(np.diag(cov))=}')
-    print(f'{chisq(y, yfit)=}')
-    print(f'{popt[0]+popt[3]=}')
+    if verbose:
+        print(f'{popt=}, \n{np.sqrt(np.diag(cov))=}')
+        print(f'{chisq(y, yfit)=}')
+        print(f'{popt[0]+popt[3]=}')
 
     if plots:
         fig, ax = plt.subplots()
