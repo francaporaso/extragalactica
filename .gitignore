@@ -9,6 +9,7 @@
 **.pdf
 **.eps
 !guia*.pdf
+!caporaso.pdf
 **.dat
 **.csv
 **.csv.gz
